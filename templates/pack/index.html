@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+ 
+{% block title %} 首页 {% endblock title %}
+ 
+ 
+{% block content %}
+<div class="col-md-6 center">
+<table class="table table-striped">
+<thead>
+  <tr>
+    <th>#</th>
+    <th>游戏</th>
+    <th>大区</th>
+    <th>版本号</th>
+    <th>打包日期</th>
+    <th>操作</th>
+  </tr>
+</thead>
+<tbody>
+  {% for version in  versions %}
+  <tr>
+    <td>{{version.id}}</td>
+    <td>{{version.project}}</td>
+    <td>{{version.zone}}</td>
+    <td>{{version.version}}</td>
+    <td>{{version.update_time}}</td>
+    <td><a href="/pack/pack/{{version.id}}">打包</td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock content %}
+
+
+{% comment %}  {% endcomment %}
+{% block script %}
+<script>
+console.log("hello")
+
+</script>
+{% endblock script %}
