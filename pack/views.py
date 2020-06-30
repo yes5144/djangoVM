@@ -1,4 +1,5 @@
 import json
+import datetime
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from . import models
@@ -19,11 +20,20 @@ def index_json(request):
 
 def pack(request, nid):
     print(type(nid), nid)
-    if request.method == "GET":
-        print(request.GET.get(nid))
+    if request.method == "POST":
+        # print(request.POST.get(nid))
+        commonIndexDir = request.POST.get("clientIndex")
+        print("commonIndexDir", commonIndexDir)
+        destDir = request.POST.get("destDir")
+        print("destDir", destDir)
+        commonClientDir = request.POST.get("clientPath")
+        print("commonClientDir", commonClientDir)
+        commonServerDir = request.POST.get("serverPath")
+        print("commonServerDir", commonServerDir)
         res = models.Version.objects.filter(id=nid).values(
             "project", "zone", "version")
         print(type(res), res)
+        today = datetime.datetime.now().strftime("%Y%m%d")
         if res:
             for i in res:
                 project = i['project']
@@ -35,11 +45,19 @@ def pack(request, nid):
 
                 ## fightcross fightdynamic fightcenter login cross server
                 ## copy -> zip -> ftp
-                commonDir = "J:/TTT/commonServer"
-                destDir = "J:/pack2020"
-                serverPack(commonDir, destDir, project, zone, newVersion)
-                models.Version.objects.filter(id=nid).update(
-                    version=newVersion)
+                destDir = "%s/%s/%s/%s" % (destDir, today, project, zone)
+                if commonServerDir:
+                    serverPack(commonServerDir, destDir, project, zone,
+                               newVersion)
+                if commonClientDir and commonIndexDir:
+                    print('client pack')
+                    projectIndexDir = "%s/%s/%s" % (commonIndexDir, project,
+                                                    zone)
+                    clientPack(projectIndexDir, commonClientDir, destDir,
+                               project, zone, newVersion)
+                if commonServerDir or commonClientDir:
+                    models.Version.objects.filter(id=nid).update(
+                        version=newVersion)
 
                 msg = "%s - pack - succ" % nid
         else:

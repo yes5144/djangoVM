@@ -1,42 +1,76 @@
 {% extends "base.html" %}
- 
+
 {% block title %} 首页 {% endblock title %}
- 
- 
+
+
 {% block content %}
 <div class="col-md-6 center">
-<table class="table table-striped">
-<thead>
-  <tr>
-    <th>#</th>
-    <th>游戏</th>
-    <th>大区</th>
-    <th>版本号</th>
-    <th>打包日期</th>
-    <th>操作</th>
-  </tr>
-</thead>
-<tbody>
-  {% for version in  versions %}
-  <tr>
-    <td>{{version.id}}</td>
-    <td>{{version.project}}</td>
-    <td>{{version.zone}}</td>
-    <td>{{version.version}}</td>
-    <td>{{version.update_time}}</td>
-    <td><a href="/pack/pack/{{version.id}}">打包</td>
-  </tr>
-  {% endfor %}
-</tbody>
-</table>
+  <form action="">
+    <div>
+      <!-- <label for="clientPath">客户端路径</label> -->
+      <input type="text" placeholder="客户端Index" value="H:/xxx/commonIndex" class="form-control" name="clientIndex"
+        id="clientIndex">
+    </div>
+    <div>
+      <!-- <label for="clientPath">客户端路径</label> -->
+      <input type="text" placeholder="打包后存放目录" value="H:/pack2020" class="form-control" name="destDir" id="destDir">
+    </div>
+    <div>
+      <!-- <label for="clientPath">客户端路径</label> -->
+      <input type="text" placeholder="客户端路径" class="form-control" name="clientPath" id="clientPath">
+    </div>
+    <div>
+      <!-- <label for="serverPath">服务端路径</label> -->
+      <input type="text" placeholder="服务端路径" class="form-control" name="serverPath" id="serverPath">
+    </div>
+  </form>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>游戏</th>
+        <th>大区</th>
+        <th>版本号</th>
+        <th>打包日期</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for version in  versions %}
+      <tr>
+        <td>{{version.id}}</td>
+        <td>{{version.project}}</td>
+        <td>{{version.zone}}</td>
+        <td>{{version.version}}</td>
+        <td>{{version.update_time}}</td>
+        <!-- <td><a href="/pack/{{version.id}}?serverpath=server&clientpath=client">打包</td> -->
+        <td><button value="{{version.id}}" click={{version.id}}>出包</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock content %}
 
 
-{% comment %}  {% endcomment %}
+{% comment %} {% endcomment %}
 {% block script %}
 <script>
-console.log("hello")
-
+  $("button").click(function (e) {
+    var nid = e.target.value;
+    console.log(nid)
+    $.post("pack/" + nid + "/", {
+      csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+      clientIndex: $("#clientIndex").val(),
+      destDir: $("#destDir").val(),
+      clientPath: $("#clientPath").val(),
+      serverPath: $("#serverPath").val()
+    },
+      function (data, status) {
+        console.log(data)
+      },
+      "json"
+    );
+  });
 </script>
 {% endblock script %}

@@ -3,6 +3,7 @@ import shutil
 import datetime
 
 from .zipClass import mkZip
+from .renderClass import renderFile
 
 today = datetime.datetime.now().strftime("%Y%m%d")
 
@@ -57,14 +58,38 @@ def serverPack(commonDir, destDir, project, zone, newversion):
         mkZip(targetDir)
 
 
-def clientPack():
-    pass
+def clientPack(commonIndex, commonDir, destDir, project, zone, newversion):
+    commonIndex = dirFormat(commonIndex)
+    commonDir = dirFormat(commonDir)
+    destDir = dirFormat(destDir)
+    app = 'client'
+    newVersionDir = "%s_%s_%s_v%s_%s" % (project, zone, app, newversion, today)
+    targetDir = destDir + newVersionDir
+    # targetDir = dirFormat(targetDir)
+    print("copy %s begin" % newVersionDir)
+    ## copy
+    shutil.copytree(commonDir, targetDir)
+
+    ## render index
+    keys = {"version": newversion}
+    renderFile(commonIndex, targetDir, keys)
+    ##
+    for tDir in os.listdir(commonIndex):
+        if os.path.isdir(commonIndex + tDir):
+            for tFile in os.listdir(commonIndex + tDir):
+                shutil.copy2(commonIndex + tDir + "/" + tFile,
+                             targetDir + '/' + tDir + "/" + tFile)
+    ## zip
+    mkZip(targetDir)
 
 
 if __name__ == "__main__":
-    commonDir = "J:/TTT/commonServer"
-    destDir = "J:/pack2020"
+    commonIndex = "H:/xxx/commonIndex/nz/wx/"
+    commonSerDir = "H:/xxx/commonServer"
+    commonCliDir = "H:/xxx/commonClient"
+    destDir = "H:/pack2020"
     project = "nz"
     zone = "mlwx"
     newversion = "1.0.32.33"
-    serverPack(commonDir, destDir, project, zone, newversion)
+    # serverPack(commonSerDir, destDir, project, zone, newversion)
+    clientPack(commonIndex, commonCliDir, destDir, project, zone, newversion)
